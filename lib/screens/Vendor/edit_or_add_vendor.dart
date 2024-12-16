@@ -75,6 +75,7 @@ class _AddEditVendorDialogState extends State<AddEditVendorDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Color(0xFFF8F9FA),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),

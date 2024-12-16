@@ -14,86 +14,89 @@ class ShowVendorBillItems {
           borderRadius: BorderRadius.circular(15),
         ),
         titlePadding: EdgeInsets.zero,
-        title: Column(
-          children: [
-            // Company Header
-            Container(
-              color: Colors.white,
-              padding: EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(businessDetails!.companyName,
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
-                      SizedBox(height: 5),
-                      Text(businessDetails.companyAddress,
-                          style: TextStyle(fontSize: 12, color: Colors.grey)),
-                      Text(businessDetails.companyPhoneNo, style: TextStyle(fontSize: 12, color: Colors.grey)),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Vendor Invoice',
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,
-                            color: vendorBill.billType == "Return Bill" ?  Colors.red :Colors.blue),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          backgroundColor: vendorBill.billType == "Return Bill" ?  Colors.red :Colors.blue,
-                          padding: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        title: Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          child: Column(
+            children: [
+              // Company Header
+              Container(
+                color: Colors.white,
+                padding: EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(businessDetails!.companyName,
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
+                        SizedBox(height: 5),
+                        Text(businessDetails.companyAddress,
+                            style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        Text(businessDetails.companyPhoneNo, style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Vendor Invoice',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,
+                              color: vendorBill.billType == "Return Bill" ?  Colors.red :Colors.blue),
                         ),
-                        child: Text( vendorBill.billType == "Return Bill" ?'RETURN BILL'  :'SALE BILL', style: TextStyle(color: Colors.white)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Vendor and Invoice Details
-            Container(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Invoice Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Vendor Name: ${vendor.name}', style: TextStyle(fontSize: 14)),
-                          SizedBox(height: 5),
-                          Text('Vendor Address: ${vendor.address}', style: TextStyle(fontSize: 14)),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('Vendor Phone: ${vendor.phoneNumber}', style: TextStyle(fontSize: 14)),
-                          SizedBox(height: 5),
-                          Text(
-                            'Invoice Date: ${DateFormat('dd-MM-yyyy').format(DateTime.parse(vendorBill.date))}',
-                            style: TextStyle(fontSize: 14),
+                        TextButton(
+                          onPressed: () {},
+                          style: TextButton.styleFrom(
+                            backgroundColor: vendorBill.billType == "Return Bill" ?  Colors.red :Colors.blue,
+                            padding: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                          child: Text( vendorBill.billType == "Return Bill" ?'RETURN BILL'  :'SALE BILL', style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              // Vendor and Invoice Details
+              Container(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Invoice Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Vendor Name: ${vendor.name}', style: TextStyle(fontSize: 14)),
+                            SizedBox(height: 5),
+                            Text('Vendor Address: ${vendor.address}', style: TextStyle(fontSize: 14)),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('Vendor Phone: ${vendor.phoneNumber}', style: TextStyle(fontSize: 14)),
+                            SizedBox(height: 5),
+                            Text(
+                              'Invoice Date: ${DateFormat('dd-MM-yyyy').format(DateTime.parse(vendorBill.date))}',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         content: SingleChildScrollView(
           child: Column(

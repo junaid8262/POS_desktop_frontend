@@ -71,6 +71,7 @@ class _AddEditCustomerDialogState extends State<AddEditCustomerDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Color(0xFFF8F9FA),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),

@@ -189,103 +189,106 @@ class _DailyTourScreenState extends State<DailyTourScreen> {
           }
 
           final tours = snapshot.data!;
-          return RefreshIndicator(
-            onRefresh: () async {
-              _fetchTours();
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: AnimationLimiter(
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 6,
-                    crossAxisSpacing: 20.0,
-                    mainAxisSpacing: 20.0,
-                  ),
-                  itemCount: tours.length,
-                  itemBuilder: (context, index) {
-                    return AnimationConfiguration.staggeredGrid(
-                      position: index,
-                      duration: const Duration(milliseconds: 500),
-                      columnCount: 2,
-                      child: ScaleAnimation(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => TourDetailDialog(tour: tours[index]),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              gradient: LinearGradient(
-                                colors: [
-                                  Color(0xFF74ABE2),
-                                  Color(0xFF5563D1),
+          return SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                _fetchTours();
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                child: AnimationLimiter(
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 6,
+                      crossAxisSpacing: 8.0,
+                      mainAxisSpacing: 15.0,
+                    ),
+                    itemCount: tours.length,
+                    itemBuilder: (context, index) {
+                      return AnimationConfiguration.staggeredGrid(
+                        position: index,
+                        duration: const Duration(milliseconds: 500),
+                        columnCount: 2,
+                        child: ScaleAnimation(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TourDetailDialog(tour: tours[index]),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFF74ABE2),
+                                    Color(0xFF5563D1),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 20,
+                                    offset: Offset(0, 10),
+                                  ),
                                 ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 20,
-                                  offset: Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: Stack(
-                              children: [
-                                Positioned(
-                                  right: 10,
-                                  top: 10,
-                                  child: Icon(Icons.navigate_next, color: Colors.white70),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        tours[index].routeName,
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                          fontFamily: 'Poppins',
+                              child: Stack(
+                                children: [
+                                  Positioned(
+                                    right: 10,
+                                    top: 10,
+                                    child: Icon(Icons.navigate_next, color: Colors.white70),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(20.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          tours[index].routeName,
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                            fontFamily: 'Poppins',
+                                          ),
+                                          overflow: TextOverflow.ellipsis, // Truncate with ellipsis if too long
+                                          maxLines: 1, // Limit to a single line
                                         ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        'Day: ${tours[index].dayOfRoute}',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white.withOpacity(0.8),
+                                        SizedBox(height: 10),
+                                        Text(
+                                          'Day: ${tours[index].dayOfRoute}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white.withOpacity(0.8),
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        'Salesman: ${tours[index].salesman}',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white.withOpacity(0.8),
+                                        SizedBox(height: 10),
+                                        Text(
+                                          'Salesman: ${tours[index].salesman}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.white.withOpacity(0.8),
+                                          ),
+                                          overflow: TextOverflow.ellipsis, // Truncate if needed
+                                          maxLines: 1, // Limit to a single line
                                         ),
-                                      ),
-                                      Spacer(),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          // Edit Icon
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.white.withOpacity(0.4), // Light background color
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: IconButton(
-                                              onPressed: () {
+                                        Spacer(),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            // Edit Icon
+                                            _buildIconButton(
+                                              context,
+                                              Icons.edit,
+                                              Colors.white,
+                                                  () {
                                                 showDialog(
                                                   context: context,
                                                   builder: (BuildContext context) {
@@ -296,60 +299,52 @@ class _DailyTourScreenState extends State<DailyTourScreen> {
                                                   },
                                                 );
                                               },
-                                              icon: Icon(Icons.edit, color: Colors.white), // White icon for visibility
-                                              tooltip: 'Edit Tour',
+                                              'Edit Tour',
                                             ),
-                                          ),
-                                          SizedBox(width: 10),
+                                            SizedBox(width: 10),
 
-                                          // Delete Icon
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.white.withOpacity(0.4), // Slight red tint background
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: IconButton(
-                                              onPressed: () {
+                                            // Delete Icon
+                                            _buildIconButton(
+                                              context,
+                                              Icons.delete,
+                                              Colors.red,
+                                                  () {
                                                 _onTourDeleted(context, tours[index]);
                                               },
-                                              icon: Icon(Icons.delete, color: Colors.red), // Red icon for visibility
-                                              tooltip: 'Delete Tour',
+                                              'Delete Tour',
                                             ),
-                                          ),
-                                          SizedBox(width: 10),
+                                            SizedBox(width: 10),
 
-                                          // History Icon
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.white.withOpacity(0.4), // Light blue background
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: IconButton(
-                                              onPressed: () {
+                                            // History Icon
+                                            _buildIconButton(
+                                              context,
+                                              Icons.history,
+                                              Colors.white,
+                                                  () {
                                                 _showTourHistoryDialog(tours[index]);
                                               },
-                                              icon: Icon(Icons.history, color: Colors.white), // White icon for contrast
-                                              tooltip: 'View History',
+                                              'View History',
                                             ),
-                                          ),
-                                        ],
-                                      )
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
           );
         },
       ),
+
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           showDialog(
@@ -377,6 +372,21 @@ class _DailyTourScreenState extends State<DailyTourScreen> {
       ),
     );
   }
+
+  Widget _buildIconButton(BuildContext context, IconData icon, Color color, VoidCallback onPressed, String tooltip) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.4),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(icon, color: color),
+        tooltip: tooltip,
+      ),
+    );
+  }
+
 
   void _showTourHistoryDialog(Tour tour) {
     // Show a dialog or another screen to display the history of the tour.

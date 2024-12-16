@@ -125,160 +125,185 @@ class _BusinessInfoScreenState extends State<BusinessInfoScreen> {
     return Scaffold(
       body: !_isEditing
           ? Center(child: CircularProgressIndicator()) // Show loading spinner while fetching
-          :Padding(
+          : Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                'Company Logo:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              logoURL.isNotEmpty && _image == null
-                  ? SizedBox(
-                width: 300,
-                height: 200,
-                child: Image.network('${dotenv.env['BACKEND_URL']!}${logoURL}'),
-              )
-                  : _image != null
-                  ? SizedBox(
-                width: 300,
-                height: 200,
-                child: Image.file(
-                  _image!,
-                  fit: BoxFit.cover,
+        child: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Company Logo:',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-              )
-                  : SizedBox(),
-              _image == null
-                  ? TextButton.icon(
-                icon: Icon(Icons.image),
-                label: Text('Pick Image'),
-                onPressed: _pickImage,
-              )
-                  : Column(
-                children: [
-                    
-                  TextButton.icon(
-                    icon: Icon(Icons.image),
-                    label: Text('Change Image'),
-                    onPressed: _pickImage,
+                SizedBox(height: 8),
+                logoURL.isNotEmpty && _image == null
+                    ? SizedBox(
+                  width: 300,
+                  height: 200,
+                  child: Image.network('${dotenv.env['BACKEND_URL']!}${logoURL}'),
+                )
+                    : _image != null
+                    ? SizedBox(
+                  width: 300,
+                  height: 200,
+                  child: Image.file(
+                    _image!,
+                    fit: BoxFit.cover,
                   ),
-                ],
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Company Name:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              _isEditing
-                  ? TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter company Name',
+                )
+                    : SizedBox(),
+                _image == null
+                    ? TextButton.icon(
+                  icon: Icon(Icons.image),
+                  label: Text('Pick Image'),
+                  onPressed: _pickImage,
+                )
+                    : Column(
+                  children: [
+                    TextButton.icon(
+                      icon: Icon(Icons.image),
+                      label: Text('Change Image'),
+                      onPressed: _pickImage,
+                    ),
+                  ],
                 ),
-              )
-                  : TextField(
-                readOnly: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'No Name available',
-                  filled: true,
-                  fillColor: Colors.grey[200],
+                SizedBox(height: 16),
+                Text(
+                  'Company Name:',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                controller: TextEditingController(
-                    text: _businessDetails?.companyName ?? 'No Name available'),
-              ),
-              SizedBox(height: 16),
-
-              Text(
-                'Company Address:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              _isEditing
-                  ? TextField(
-                controller: _addressController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter company address',
-                ),
-              )
-                  : TextField(
-                readOnly: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'No address available',
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                ),
-                controller: TextEditingController(
-                    text: _businessDetails?.companyAddress ?? 'No address available'),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Company Phone Number:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              _isEditing
-                  ? TextField(
-                controller: _phoneController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter company phone number',
-                ),
-              )
-                  : TextField(
-                readOnly: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'No phone number available',
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                ),
-                controller: TextEditingController(
-                    text: _businessDetails?.companyPhoneNo ?? 'No phone number available'),
-              ),
-              SizedBox(height: 24),
-              _isEditing
-                  ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: _saveBusinessDetails,
-                    child: Text('Save'),
+                SizedBox(height: 8),
+                _isEditing
+                    ? SizedBox(
+                  width: 500,
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter company Name',
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    ),
                   ),
-                  SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isEditing = false;
-                      });
-                    },
-                    child: Text('Cancel'),
+                )
+                    : SizedBox(
+                  width: 500,
+                  child: TextField(
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'No Name available',
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    ),
+                    controller: TextEditingController(
+                        text: _businessDetails?.companyName ?? 'No Name available'),
                   ),
-                ],
-              )
-                  : ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _isEditing = true;
-                  });
-                },
-                child: Text('Edit'),
-              ),
-            ],
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Company Address:',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                _isEditing
+                    ? SizedBox(
+                  width: 500,
+                  child: TextField(
+                    controller: _addressController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter company address',
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    ),
+                  ),
+                )
+                    : SizedBox(
+                  width: 500,
+                  child: TextField(
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'No address available',
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    ),
+                    controller: TextEditingController(
+                        text: _businessDetails?.companyAddress ?? 'No address available'),
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Company Phone Number:',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                _isEditing
+                    ? SizedBox(
+                  width: 500,
+                  child: TextField(
+                    controller: _phoneController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter company phone number',
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    ),
+                  ),
+                )
+                    : SizedBox(
+                  width: 500,
+                  child: TextField(
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'No phone number available',
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    ),
+                    controller: TextEditingController(
+                        text: _businessDetails?.companyPhoneNo ?? 'No phone number available'),
+                  ),
+                ),
+                SizedBox(height: 24),
+                _isEditing
+                    ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _saveBusinessDetails,
+                      child: Text('Save'),
+                    ),
+                    SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _isEditing = false;
+                        });
+                      },
+                      child: Text('Cancel'),
+                    ),
+                  ],
+                )
+                    : ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isEditing = true;
+                    });
+                  },
+                  child: Text('Edit'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
 
   @override
   void dispose() {

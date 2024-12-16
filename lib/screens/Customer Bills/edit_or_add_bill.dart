@@ -1876,19 +1876,27 @@ class _AddEditBillDialogState extends State<AddEditBillDialog> {
                                   // Amount in Words
                                   _selectedStatus == 'Non Completed'
                                       ? Text(
-                                    '${numberToWords(double.tryParse('0')?.toInt() ?? 0)} Rupees Only',
+                                    '${numberToWords(double.tryParse('0')?.toInt() ?? 0)} ₨ Only',
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: Colors.grey[700],
                                     ),
                                   )
-                                      : Text(
-                                    '${numberToWords(double.tryParse(_totalAmountController.text)?.toInt() ?? 0)} Rupees Only',
+                                      :  // Amount in Words
+                                  Text(
+                                    '${numberToWords(double.tryParse(_totalAmountController.text)?.toInt() ?? 0)} ₨ Only',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 14,
                                       color: Colors.grey[700],
                                     ),
+                                    overflow: TextOverflow.ellipsis, // Truncate if needed
+                                    maxLines: 1,
                                   ),
+
+                                  SizedBox(height: 25),
+
+
+
                                   SizedBox(height: 8),
 
 

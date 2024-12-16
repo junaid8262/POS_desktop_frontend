@@ -173,7 +173,7 @@ class _VendorBillsPageState extends State<VendorBillsPage> {
                   _optionTile(
                     icon: Icons.reply,
                     title: 'Add Vendor Return Bill',
-                    description: 'Record a return transaction for a vendor bill',
+                    description: 'Record return transaction for vendor bill',
                     color: Colors.red.shade600,
                     onTap: () {
                       Navigator.pop(context);

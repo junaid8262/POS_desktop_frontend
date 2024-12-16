@@ -650,10 +650,11 @@ class _AddEditVendorBillDialogState extends State<AddEditVendorBillDialog> {
     final businessProvider = Provider.of<BusinessDetailsProvider>(context,listen :true);
 
     return Dialog(
+      backgroundColor: Color(0xFFF8F9FA),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      backgroundColor: Colors.white,
+
       child: Container(
         padding: EdgeInsets.all(16),
         child: _isLoading
@@ -1493,11 +1494,13 @@ class _AddEditVendorBillDialogState extends State<AddEditVendorBillDialog> {
                                 
                                     // Amount in Words
                                     Text(
-                                      '${numberToWords(double.tryParse(_totalAmountController.text)?.toInt() ?? 0)} Rupees Only',
+                                      '${numberToWords(double.tryParse(_totalAmountController.text)?.toInt() ?? 0)} ₨ Only',
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         color: Colors.grey[700],
                                       ),
+                                      overflow: TextOverflow.ellipsis, // Truncate if needed
+                                      maxLines: 1,
                                     ),
                                 
                                     SizedBox(height: 25),
@@ -1883,9 +1886,9 @@ class _AddEditVendorBillDialogState extends State<AddEditVendorBillDialog> {
                                               borderRadius: BorderRadius.circular(8),
                                             ),
                                             columnWidths: {
-                                              0: FlexColumnWidth(3),
-                                              1: FlexColumnWidth(1.5),
-                                              2: FlexColumnWidth(1.5),
+                                              0: FlexColumnWidth(2),
+                                              1: FlexColumnWidth(1),
+                                              2: FlexColumnWidth(1),
                                               3: FlexColumnWidth(2),
                                             },
                                             children: [

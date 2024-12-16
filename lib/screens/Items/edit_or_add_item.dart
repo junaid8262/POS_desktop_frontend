@@ -137,6 +137,7 @@ class _AddEditItemDialogState extends State<AddEditItemDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Color(0xFFF8F9FA),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
@@ -153,6 +154,7 @@ class _AddEditItemDialogState extends State<AddEditItemDialog> {
               CustomTextField(
                 controller: _nameController,
                 label: 'Item Name',
+
               ),
               SizedBox(height: 16),
               CustomTextField(
@@ -226,23 +228,12 @@ class _AddEditItemDialogState extends State<AddEditItemDialog> {
                 label: Text('Pick Image'),
                 onPressed: _pickImage,
               )
-                  : Column(
-                children: [
-                  SizedBox(
-                    width: 300,
-                    height: 200,
-                    child: Image.file(
-                      _image!,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  :
                   TextButton.icon(
                     icon: Icon(Icons.image),
                     label: Text('Change Image'),
                     onPressed: _pickImage,
                   ),
-                ],
-              ),
               SizedBox(height: 16),
               _isLoading
                   ? CircularProgressIndicator()
