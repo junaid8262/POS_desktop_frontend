@@ -40,9 +40,9 @@ class UserService {
     }
   }
 
-  Future<User> updateUser(String id, User user) async {
+  Future<User> updateUser(User user) async {
     final response = await http.put(
-      Uri.parse('$baseUrl/$id'),
+      Uri.parse('$baseUrl/${user.id}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

@@ -1051,7 +1051,7 @@ class _AddEditVendorBillDialogState extends State<AddEditVendorBillDialog> {
                                       height: 40,
                                       width: 250,
                                       child: ElevatedButton(
-                                        onPressed: _showItemSelectionDialog,
+                                        onPressed: _showItemSelectionDialog!,
                                         child: Text('Add Item'),
                                       ),
                                     ),

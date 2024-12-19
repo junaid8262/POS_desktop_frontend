@@ -12,8 +12,12 @@ import '../../../models/businessInfo.dart';
 import '../../../models/customer.dart';
 
 class BillPdfGenerator {
+
   static Future<void> generatePdfAndView(Bill bill, Customer customer, String billType , BusinessDetails? businessDetails) async {
     final pdf = pw.Document();
+    // Parse bill.date to DateTime
+    DateTime date = DateTime.parse(bill.date);
+    String formattedDate = DateFormat('yyyy-MM-dd').format(date);
     final isReturnBill = billType == 'Return Bill';
     final billColor = isReturnBill ? PdfColors.redAccent : PdfColors.blueAccent;
     final netImage = await networkImage('${dotenv.env['BACKEND_URL']!}${businessDetails!.companyLogo}');
@@ -164,7 +168,7 @@ class BillPdfGenerator {
                               ],
                             ),
                             pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              crossAxisAlignment: pw.CrossAxisAlignment.end,
                               children: [
                                 pw.Text('Customer Phone:',
                                     style: pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
@@ -191,14 +195,15 @@ class BillPdfGenerator {
                                         fontSize: 12, fontWeight: pw.FontWeight.bold)),
                               ],
                             ),
+
                             pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              crossAxisAlignment: pw.CrossAxisAlignment.end,
                               children: [
                                 pw.Text('Sales Date:',
                                     style: pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
                                 pw.SizedBox(height: 3),
                                 pw.Text(
-                                    '${bill.date.toString()}',
+                                    formattedDate,
                                     style: pw.TextStyle(
                                         fontSize: 12, fontWeight: pw.FontWeight.bold)),
                               ],

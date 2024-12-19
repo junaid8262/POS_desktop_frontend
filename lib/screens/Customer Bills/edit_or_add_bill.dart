@@ -79,7 +79,7 @@ class _AddEditBillDialogState extends State<AddEditBillDialog> {
   String? _selectedCustomerId;
   Customer? _selectedCustomer;
   List<BillItem> _selectedItems = [];
-  String _selectedStatus = 'Non Completed';
+  String _selectedStatus = 'Completed';
   double _totalAmount = 0;
   double _discount = 0;
   double _subtotal = 0;

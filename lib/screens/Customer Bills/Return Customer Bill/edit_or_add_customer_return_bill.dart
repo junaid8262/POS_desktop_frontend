@@ -203,64 +203,62 @@ class _AddEditReturnBillDialogState extends State<AddEditReturnBillDialog> {
     });
   }
 
-  void _addItemToBill(Item item ,double discount) async {
-    if (item.availableQuantity > 0) {
-      await _fetchItemPreviousRates(item.id);
-      await _fetchItemPreviousPurchaseRates(item.id);
+  void _addItemToBill(Item item, double discount) async {
+    await _fetchItemPreviousPurchaseRates(item.id);
+    setState(() {
+      if (!_quantityControllers.containsKey(item.id)) {
+        _quantityControllers[item.id] = TextEditingController(text: item.availableQuantity.toString());
+      }
 
-      setState(() {
-        // Initialize controllers if not already initialized
-        if (!_quantityControllers.containsKey(item.id)) {
-          _quantityControllers[item.id] = TextEditingController(text: item.availableQuantity.toString());
+
+      BillItem? existingItem;
+      for (var selectedItem in _selectedItems) {
+        if (selectedItem.itemId == item.id) {
+          existingItem = selectedItem;
+          break;
         }
-        if (!_discountControllers.containsKey(item.id)) {
-          _discountControllers[item.id] = TextEditingController(text: discount.toString());
-        }
-        if (!_saleRateControllers.containsKey(item.id)) {
-          _saleRateControllers[item.id] = TextEditingController(text: item.saleRate.toStringAsFixed(2));
-        }
+      }
 
-        BillItem? existingItem;
-        for (var selectedItem in _selectedItems) {
-          if (selectedItem.itemId == item.id) {
-            existingItem = selectedItem;
-            break;
-          }
-        }
+      if (existingItem != null) {
+        existingItem.quantity++;
+        existingItem.total = existingItem.purchaseRate * existingItem.quantity;
+        _quantityControllers[item.id]!.text = existingItem.quantity.toString();
+      } else {
+        // Set the initial quantity to the purchased quantity
+        int initialQuantity = item.availableQuantity; // or use the quantity from the previous bill if applicable
+        _selectedItems.add(BillItem(
+          itemId: item.id,
+          name: item.name,
+          quantity: initialQuantity, // Start with the purchased quantity
+          purchaseRate: item.purchaseRate,
+          total: item.purchaseRate * initialQuantity, // Total for the initial quantity
+          miniUnit: item.miniUnit,
+          item: item, saleRate: item.saleRate, itemDiscount: discount, // Store the item reference
+        ));
+        _quantityControllers[item.id]!.text = initialQuantity.toString(); // Set the controller to the initial quantity
+      }
 
-        if (existingItem != null) {
-          // Increment the quantity of the existing item
-          print("yes it was exsisiting");
-          existingItem.quantity++;
-          existingItem.total = existingItem.saleRate * existingItem.quantity;
+      _calculateTotalAmount();
+    });
+  }
 
-          // Update the quantity controller to reflect the new quantity
-          _quantityControllers[item.id]!.text = existingItem.quantity.toString();
+  void _updateItemQuantity(BillItem billItem, int quantity) {
+    setState(() {
+      // Check if the quantity is less than or equal to the available quantity of the associated Item
+      if (quantity > (billItem.item?.availableQuantity ?? 0)) {
+        // Show an error message or handle the error as needed
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Cannot return more than available quantity: ${billItem.item?.availableQuantity}'))
+        );
+        return; // Exit the method if the quantity is invalid
+      }
 
-        } else {
-          // Add new item to the bill
-          _selectedItems.add(BillItem(
-            itemId: item.id,
-            name: item.name,
-            quantity: item.availableQuantity,
-            saleRate: item.saleRate,
-            purchaseRate: item.purchaseRate,
-            total: item.saleRate*item.availableQuantity,
-            itemDiscount: discount,
-            miniUnit: item.miniUnit
-          ));
-          // Set the quantity controller for the new item
-          _quantityControllers[item.id]!.text = item.availableQuantity.toString();
-          _discountControllers[item.id]!.text = discount.toString();
-        }
+      billItem.quantity = quantity;
+      billItem.total = billItem.purchaseRate * quantity;
 
-        _calculateTotalAmount();
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Selected item is out of stock')),
-      );
-    }
+      // Recalculate the total amount
+      _calculateTotalAmount();
+    });
   }
   
   void _removeItemFromBill(BillItem item) {
@@ -269,23 +267,39 @@ class _AddEditReturnBillDialogState extends State<AddEditReturnBillDialog> {
       _calculateTotalAmount();
     });
   }
-
-  // todo handle update item quantity alert
-  void _updateItemQuantity(BillItem item, int quantity) {
-    if (quantity <= _items
-        .firstWhere((i) => i.id == item.itemId)
-        .availableQuantity) {
-      setState(() {
-        item.quantity = quantity;
-        item.total = item.saleRate * quantity;
-        _calculateTotalAmount();
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Quantity exceeds available stock')),
-      );
-    }
+  void _showAlertDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text('Warning'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
+  // todo handle update item quantity alert
+  // void _updateItemQuantity(BillItem item, int quantity) {
+  //   if (quantity <= _items.firstWhere((i) => i.id == item.itemId).availableQuantity) {
+  //     setState(() {
+  //       item.quantity = quantity;
+  //       item.total = item.saleRate * quantity;
+  //       _calculateTotalAmount();
+  //     });
+  //   } else {
+  //     // Show an alert dialog if the quantity exceeds available stock
+  //     _showAlertDialog('Quantity exceeds available stock');
+  //   }
+  // }
 
   void _updateItemRateForBill(BillItem item, double saleRate) {
     setState(() {
@@ -1538,8 +1552,18 @@ class _AddEditReturnBillDialogState extends State<AddEditReturnBillDialog> {
                                                 onChanged: (value) {
                                                   final quantity = int.tryParse(value) ?? 0;
                                                   setState(() {
-                                                    _selectedItems[i].quantity = quantity;
-                                                    _updateItemRateForBill(_selectedItems[i], _selectedItems[i].saleRate);
+                                                    if (quantity <= _selectedItems[i].item!.availableQuantity) {
+                                                      _selectedItems[i].quantity = quantity;
+                                                      _updateItemQuantity(_selectedItems[i], quantity); // Update only the quantity
+                                                    } else {
+                                                      // If the quantity exceeds the availableQuantity, reset it to the availableQuantity
+                                                      _selectedItems[i].quantity = _selectedItems[i].item!.availableQuantity;
+                                                      _quantityControllers[_selectedItems[i].itemId]?.text = _selectedItems[i].quantity.toString(); // Update controller
+                                                      _updateItemQuantity(_selectedItems[i], _selectedItems[i].quantity); // Update quantity
+                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                        SnackBar(content: Text('Quantity cannot exceed available stock!')),
+                                                      );
+                                                    }
                                                   });
                                                 },
                                               ),
@@ -1557,9 +1581,14 @@ class _AddEditReturnBillDialogState extends State<AddEditReturnBillDialog> {
                                                       iconSize: 18,
                                                       onPressed: () {
                                                         setState(() {
-                                                          _selectedItems[i].quantity++;
-                                                          _quantityControllers[_selectedItems[i].itemId]?.text = _selectedItems[i].quantity.toString(); // Update controller
-                                                          _updateItemRateForBill(_selectedItems[i], _selectedItems[i].saleRate);
+                                                          if (_selectedItems[i].quantity < _selectedItems[i].item!.availableQuantity) {
+                                                            _selectedItems[i].quantity++;
+                                                            _quantityControllers[_selectedItems[i].itemId]?.text = _selectedItems[i].quantity.toString(); // Update controller
+                                                            _updateItemQuantity(_selectedItems[i], _selectedItems[i].quantity); // Update only quantity
+                                                          } else {
+                                                            // Show a message if the user tries to increment past available stock
+                                                            _showAlertDialog('Cannot exceed purchased Quantity!');
+                                                          }
                                                         });
                                                       },
                                                     ),
@@ -1573,10 +1602,19 @@ class _AddEditReturnBillDialogState extends State<AddEditReturnBillDialog> {
                                                       iconSize: 18,
                                                       onPressed: () {
                                                         setState(() {
-                                                          if (_selectedItems[i].quantity > 0) {
-                                                            _selectedItems[i].quantity--;
-                                                            _quantityControllers[_selectedItems[i].itemId]?.text = _selectedItems[i].quantity.toString(); // Update controller
-                                                            _updateItemRateForBill(_selectedItems[i], _selectedItems[i].saleRate);
+                                                          if (_selectedItems[i]
+                                                              .quantity > 0) {
+                                                            _selectedItems[i]
+                                                                .quantity--;
+                                                            _quantityControllers[_selectedItems[i]
+                                                                .itemId]?.text =
+                                                                _selectedItems[i]
+                                                                    .quantity
+                                                                    .toString(); // Update controller
+                                                            _updateItemQuantity(
+                                                                _selectedItems[i],
+                                                                _selectedItems[i]
+                                                                    .quantity); // Update only quantity
                                                           }
                                                         });
                                                       },

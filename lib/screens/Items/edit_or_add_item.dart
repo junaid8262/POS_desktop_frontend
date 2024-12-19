@@ -136,6 +136,15 @@ class _AddEditItemDialogState extends State<AddEditItemDialog> {
 
   @override
   Widget build(BuildContext context) {
+    // Check if any required field is empty
+    bool isFormValid() {
+      return _nameController.text.isNotEmpty &&
+          _quantityController.text.isNotEmpty &&
+          _purchaseRateController.text.isNotEmpty &&
+          _saleRateController.text.isNotEmpty &&
+          _locationController.text.isNotEmpty;
+    }
+
     return Dialog(
       backgroundColor: Color(0xFFF8F9FA),
       shape: RoundedRectangleBorder(
@@ -153,24 +162,27 @@ class _AddEditItemDialogState extends State<AddEditItemDialog> {
               SizedBox(height: 16),
               CustomTextField(
                 controller: _nameController,
-                label: 'Item Name',
-
+                label: 'Item Name*',
+                hintText: 'Item Name',
               ),
               SizedBox(height: 16),
               CustomTextField(
                 controller: _brandController,
                 label: 'Brand',
+                hintText: "Samsung, Apple , Lays",
               ),
               SizedBox(height: 16),
               CustomTextField(
                 controller: _quantityController,
-                label: 'Available Quantity',
+                label: 'Available Quantity*',
                 keyboardType: TextInputType.number,
+                hintText: "0",
               ),
               SizedBox(height: 16),
               CustomTextField(
                 controller: _nameInUrduController,
                 label: 'Name in Urdu',
+                hintText: "سیمسنگ, ایپل, لیز",
               ),
               SizedBox(height: 16),
               CustomTextField(
@@ -185,25 +197,29 @@ class _AddEditItemDialogState extends State<AddEditItemDialog> {
               SizedBox(height: 16),
               CustomTextField(
                 controller: _purchaseRateController,
-                label: 'Purchase Rate',
+                label: 'Purchase Rate*',
                 keyboardType: TextInputType.number,
+                hintText: '300',
               ),
               SizedBox(height: 16),
               CustomTextField(
                 controller: _saleRateController,
-                label: 'Sale Rate',
+                label: 'Sale Rate*',
                 keyboardType: TextInputType.number,
+                hintText: '450',
               ),
               SizedBox(height: 16),
               CustomTextField(
                 controller: _minStockController,
                 label: 'Min Stock',
                 keyboardType: TextInputType.number,
+                hintText: '1',
               ),
               SizedBox(height: 16),
               CustomTextField(
                 controller: _locationController,
-                label: 'Location',
+                label: 'Location*',
+                hintText: "LHR, ISB, FSD",
               ),
               SizedBox(height: 16),
               widget.item?.picture != null && _image == null
@@ -225,20 +241,19 @@ class _AddEditItemDialogState extends State<AddEditItemDialog> {
               _image == null
                   ? TextButton.icon(
                 icon: Icon(Icons.image),
-                label: Text('Pick Image'),
+                label: Text('Pick Image*'),
                 onPressed: _pickImage,
               )
-                  :
-                  TextButton.icon(
-                    icon: Icon(Icons.image),
-                    label: Text('Change Image'),
-                    onPressed: _pickImage,
-                  ),
+                  : TextButton.icon(
+                icon: Icon(Icons.image),
+                label: Text('Change Image'),
+                onPressed: _pickImage,
+              ),
               SizedBox(height: 16),
               _isLoading
                   ? CircularProgressIndicator()
                   : ElevatedButton(
-                onPressed: _handleSave,
+                onPressed: isFormValid() ? _handleSave : null, // Disable button if form is not valid
                 style: AppTheme.elevatedButtonStyle,
                 child: Text('Save', style: AppTheme.button),
               ),
@@ -248,6 +263,4 @@ class _AddEditItemDialogState extends State<AddEditItemDialog> {
       ),
     );
   }
-
-
 }

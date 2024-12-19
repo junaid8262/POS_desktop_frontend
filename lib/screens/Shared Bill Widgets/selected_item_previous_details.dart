@@ -103,6 +103,10 @@ class SaleHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    for (var rate in previousRates) {
+      print('Customer: ${rate.customerName}, Quantity: ${rate.quantity}, SaleRate: ${rate.saleRate}');
+    }
+
     return Card(
       margin: EdgeInsets.all(8.0),
       elevation: 5,
@@ -142,8 +146,9 @@ class SaleHistoryCard extends StatelessWidget {
                         _buildHeaderCell('Date'),
                       ],
                     ),
+
                     for (var rate in previousRates)
-                      TableRow(
+        TableRow(
                         children: [
                           _buildDataCell(rate.customerName.toString()),
                           _buildDataCell(rate.quantity.toString()),

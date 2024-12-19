@@ -223,8 +223,8 @@ class _LoginScreenState extends State<LoginScreen>  with WidgetsBindingObserver{
       _isLoading = true;
     });
 
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text.trim();
 
     final user = await _authService.login(username, password);
     List<BusinessDetails> businessDetails = await _businessDetailsService.getBusinessDetails();

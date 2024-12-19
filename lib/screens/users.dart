@@ -218,17 +218,18 @@ class AddEditUserDialog extends StatefulWidget {
 class _AddEditUserDialogState extends State<AddEditUserDialog> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _roleController = TextEditingController();
+  // final TextEditingController _roleController = TextEditingController();
   final UserService _userService = UserService();
   bool _isLoading = false;
+  String? _selectedRole; // New variable for storing the selected role
 
   @override
   void initState() {
     super.initState();
     if (widget.user != null) {
       _emailController.text = widget.user!.email;
-      _roleController.text = widget.user!.role;
       _passwordController.text = widget.user!.password;
+      _selectedRole = widget.user!.role; // Set the selected role if editing
     }
   }
 
@@ -237,34 +238,45 @@ class _AddEditUserDialogState extends State<AddEditUserDialog> {
       _isLoading = true;
     });
 
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final role = _roleController.text;
+    try {
+      final email = _emailController.text;
+      final password = _passwordController.text;
 
-    final user = User(
-      email: email,
-      password: widget.user?.password ?? password, // Use null-aware access
-      role: role,
-      id: widget.user?.id ?? '', // Use null-aware access
-    );
+      final user = User(
+        email: email,
+        password: widget.user?.password ?? password,
+        role: _selectedRole ?? widget.user?.role ?? 'employee', // Default to 'employee' if null
+        id: widget.user?.id ?? '',
+      );
 
-    if (widget.user == null) {
-      await _userService.createUser(user);
-    } else {
-      await _userService.updateUser(widget.user!.email, user);
+      if (widget.user == null) {
+        // Create a new user
+        await _userService.createUser(user);
+      } else {
+        // Update existing user
+        await _userService.updateUser(user);
+      }
+
+      widget.onUserSaved();
+      Navigator.pop(context);
+    } catch (e) {
+      // Handle error (e.g., show a snackbar or dialog)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save user: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    widget.onUserSaved();
-    Navigator.pop(context);
   }
+
+
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Color(0xFFF8F9FA),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
@@ -283,7 +295,30 @@ class _AddEditUserDialogState extends State<AddEditUserDialog> {
               // if (widget.user == null)
               CustomTextField(controller: _passwordController, label: 'Password'),
               SizedBox(height: 16),
-              CustomTextField(controller: _roleController, label: 'Role'),
+              SizedBox(
+                width: 400,
+                child: DropdownButtonFormField<String>(
+                  value: _selectedRole, // Current selected value
+                  hint: Text('Role'), // Placeholder
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    border: OutlineInputBorder(),
+                    labelText: 'Role',
+                  ),
+                  items: ['admin', 'employee'] // Dropdown options
+                      .map((role) => DropdownMenuItem<String>(
+                    value: role,
+                    child: Text(role),
+                  ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedRole = value; // Update selected role
+                    });
+                  },
+                ),
+              ),
+
               SizedBox(height: 16),
               _isLoading
                   ? CircularProgressIndicator()

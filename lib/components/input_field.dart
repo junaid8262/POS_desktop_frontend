@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
+  final String? hintText;
   final String label;
   final bool obscureText;
   final TextInputType? keyboardType;
@@ -14,6 +15,7 @@ class CustomTextField extends StatelessWidget {
     required this.controller,
     required this.label,
     this.obscureText = false,
+    this.hintText,
     this.keyboardType,
     this.readOnly,
     this.onChanged,
@@ -25,6 +27,7 @@ class CustomTextField extends StatelessWidget {
     return SizedBox(
       width: 400,
       child: TextField(
+
         inputFormatters: inputFormatters ??
             [
               keyboardType == TextInputType.number
@@ -34,10 +37,12 @@ class CustomTextField extends StatelessWidget {
         keyboardType: keyboardType,
         controller: controller,
         obscureText: obscureText,
+
         readOnly: readOnly ?? false,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
           labelText: label,
+          hintText: hintText, // Add hintText here
         ),
         onChanged: onChanged,
       ),

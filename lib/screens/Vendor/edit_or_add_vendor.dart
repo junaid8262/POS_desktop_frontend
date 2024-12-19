@@ -89,13 +89,17 @@ class _AddEditVendorDialogState extends State<AddEditVendorDialog> {
             children: [
               Text(widget.vendor == null ? 'Add Vendor' : 'Edit Vendor', style: AppTheme.headline6),
               SizedBox(height: 16),
-              CustomTextField(controller: _businessNameController, label: 'Business Name (REQUIRED)', onChanged: (value){setState(() {
+              CustomTextField(controller: _businessNameController, label: 'Business Name*',hintText:'Business Name*', onChanged: (value){setState(() {
                 _businessNameController.text = value;
               });},),
               SizedBox(height: 16),
-              CustomTextField(controller: _nameController, label: 'Name'),
+              CustomTextField(controller: _nameController, label: 'Name*',
+                hintText: "Name",
+                onChanged: (value) {
+                  setState(() {}); // Trigger rebuild to check validation
+                },),
               SizedBox(height: 16),
-              CustomTextField(controller: _phoneNumberController, label: 'Phone Number'),
+              CustomTextField(controller: _phoneNumberController, label: 'Phone Number*',hintText: '+92',),
               SizedBox(height: 16),
 
 
@@ -114,7 +118,8 @@ class _AddEditVendorDialogState extends State<AddEditVendorDialog> {
 
               CustomTextField(readOnly: true , controller: _balanceController, label: 'Balance', keyboardType: TextInputType.number),
               SizedBox(height: 16),
-              if(_businessNameController.text.trim().isNotEmpty ) ...[
+              if(_businessNameController.text.trim().isNotEmpty && _nameController.text.trim().isNotEmpty &&
+                  _phoneNumberController.text.trim().isNotEmpty ) ...[
                 _isLoading
                     ? CircularProgressIndicator()
                     : ElevatedButton(

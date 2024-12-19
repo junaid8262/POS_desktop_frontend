@@ -34,13 +34,16 @@ class BillsDataSource extends DataTableSource {
     required this.user,
     required this.printBill,
     required this.businessDetails,
-  }) : filteredBills = List.from(bills);
+  }) : filteredBills = List.from(bills)
+    ..sort((a, b) => DateTime.parse(b.date).compareTo(DateTime.parse(a.date)));
+
 
   final RequestService _requestService = RequestService();
   // Adding filter for Bill Type
   void filterBillsByType(String billType) {
     if (billType == 'All') {
-      filteredBills = List.from(bills); // Show all bills if 'All' is selected
+      filteredBills = List.from(bills)
+        ..sort((a, b) => DateTime.parse(b.date).compareTo(DateTime.parse(a.date))); // Show all bills if 'All' is selected
     } else {
       filteredBills = bills.where((bill) => bill.billType == billType).toList(); // Filter by type
     }

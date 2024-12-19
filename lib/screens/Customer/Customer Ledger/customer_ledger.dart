@@ -638,8 +638,17 @@ class _LedgerBillDataSource extends DataTableSource {
   final Customer customer; // Pass context here
   final BusinessDetails? businessDetails; // Pass context here
 
-  _LedgerBillDataSource(this._bills, this._getRowColor, this.onEdit, this.onView, this.context, this.customer , this.businessDetails);
-
+  _LedgerBillDataSource(
+      List<Bill> bills,
+      this._getRowColor,
+      this.onEdit,
+      this.onView,
+      this.context,
+      this.customer,
+      this.businessDetails
+      ) : _bills = List.from(bills)
+    ..sort((a, b) => DateTime.parse(b.date ?? '')
+        .compareTo(DateTime.parse(a.date ?? '')));
   @override
   DataRow getRow(int index) {
     final Bill bill = _bills[index];

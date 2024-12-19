@@ -83,13 +83,29 @@ class _AddEditCustomerDialogState extends State<AddEditCustomerDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(widget.customer == null ? 'Add Customer' : 'Edit Customer', style: AppTheme.headline6),
+              Text(
+                widget.customer == null ? 'Add Customer' : 'Edit Customer',
+                style: AppTheme.headline6,
+              ),
               SizedBox(height: 16),
-              CustomTextField(controller: _nameController, label: 'Name (REQUIRED)' , onChanged: (value){setState(() {
-                _nameController.text = value;
-              });},),
+              CustomTextField(
+                controller: _nameController,
+                label: 'Name*',
+                hintText: "Name",
+                onChanged: (value) {
+                  setState(() {}); // Trigger rebuild to check validation
+                },
+              ),
               SizedBox(height: 16),
-              CustomTextField(controller: _phoneNumberController, label: 'Phone Number'),
+              CustomTextField(
+                controller: _phoneNumberController,
+                label: 'Phone Number*',
+                hintText: '+92..........',
+                keyboardType: TextInputType.phone,
+                onChanged: (value) {
+                  setState(() {}); // Trigger rebuild to check validation
+                },
+              ),
               SizedBox(height: 16),
               SizedBox(
                 width: 400,
@@ -103,11 +119,17 @@ class _AddEditCustomerDialogState extends State<AddEditCustomerDialog> {
                 ),
               ),
               SizedBox(height: 16),
-              SizedBox(height: 16),
-              CustomTextField(readOnly: true , controller: _balanceController, label: 'Balance', keyboardType: TextInputType.number),
+              CustomTextField(
+                readOnly: true,
+                controller: _balanceController,
+                label: 'Balance',
+                keyboardType: TextInputType.number,
+              ),
               SizedBox(height: 16),
 
-              if(_nameController.text.trim().isNotEmpty ) ...[
+              // Check if both fields are not empty
+              if (_nameController.text.trim().isNotEmpty &&
+                  _phoneNumberController.text.trim().isNotEmpty) ...[
                 _isLoading
                     ? CircularProgressIndicator()
                     : ElevatedButton(
@@ -115,8 +137,7 @@ class _AddEditCustomerDialogState extends State<AddEditCustomerDialog> {
                   style: AppTheme.elevatedButtonStyle,
                   child: Text('Save', style: AppTheme.button),
                 ),
-              ]
-              else ...[
+              ] else ...[
                 _isLoading
                     ? CircularProgressIndicator()
                     : ElevatedButton(
@@ -126,12 +147,12 @@ class _AddEditCustomerDialogState extends State<AddEditCustomerDialog> {
                   ),
                   child: Text('Save', style: AppTheme.button),
                 ),
-              ]
-
+              ],
             ],
           ),
         ),
       ),
     );
   }
+
 }

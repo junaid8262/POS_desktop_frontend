@@ -1,3 +1,5 @@
+import 'item.dart';
+
 class Bill {
   String id;
   String customerId;
@@ -68,6 +70,7 @@ class BillItem {
   String? date;  // Optional field for date
   double itemDiscount;
   final String? miniUnit;
+  final Item? item;
 
 
   BillItem({
@@ -81,7 +84,12 @@ class BillItem {
     required this.miniUnit,
     this.customerName,
     this.date,
+    this.item
   });
+
+  int getAvailableQuantity() {
+    return item?.availableQuantity ?? 0; // Return available quantity from the Item
+  }
 
   // Factory method to create a BillItem from JSON
   factory BillItem.fromJson(Map<String, dynamic> json) {

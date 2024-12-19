@@ -1,3 +1,5 @@
+import 'item.dart';
+
 class VendorBill {
   String id;
   String vendorId;
@@ -68,6 +70,7 @@ class VendorBillItem {
   String? vendorName;
   String? date;
   String? miniUnit;
+  final Item? item;
 
   VendorBillItem({
     required this.itemId,
@@ -78,8 +81,12 @@ class VendorBillItem {
     required this.miniUnit,
     this.vendorName,
     this.date,
+    this.item
   });
-
+  // You can add a method to get the available quantity for return
+  int getAvailableQuantity() {
+    return item?.availableQuantity ?? 0; // Return available quantity from the Item
+  }
   factory VendorBillItem.fromJson(Map<String, dynamic> json) {
     return VendorBillItem(
       itemId: json['itemId'] ?? json['item'] ?? '',

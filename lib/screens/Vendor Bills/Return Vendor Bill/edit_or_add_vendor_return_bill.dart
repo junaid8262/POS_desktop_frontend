@@ -63,6 +63,7 @@ class _AddEditVendorReturnBillDialogState extends State<AddEditVendorReturnBillD
   double _subtotal = 0;
   String? _role;
   int _selectedIndex = -1;
+  Map<String, int> _purchasedQuantities = {};
 
   @override
   void initState() {
@@ -137,6 +138,26 @@ class _AddEditVendorReturnBillDialogState extends State<AddEditVendorReturnBillD
     DateTime pickedDefaultDate = DateTime.now();
     _paymentPromiseDateController.text = DateFormat('dd-MM-yyyy').format(pickedDefaultDate);
   }
+  void _showAlertDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text('Warning'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> _fetchRole() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -203,9 +224,6 @@ class _AddEditVendorReturnBillDialogState extends State<AddEditVendorReturnBillD
         _purchaseRateControllers[item.id] = TextEditingController(text: item.purchaseRate.toStringAsFixed(2));
       }
 
-      // Initialize the purchase rate if it doesn't exist
-      _initialPurchaseRates[item.id] ??= item.purchaseRate;
-
       VendorBillItem? existingItem;
       for (var selectedItem in _selectedItems) {
         if (selectedItem.itemId == item.id) {
@@ -218,18 +236,19 @@ class _AddEditVendorReturnBillDialogState extends State<AddEditVendorReturnBillD
         existingItem.quantity++;
         existingItem.total = existingItem.purchaseRate * existingItem.quantity;
         _quantityControllers[item.id]!.text = existingItem.quantity.toString();
-
       } else {
+        // Set the initial quantity to the purchased quantity
+        int initialQuantity = item.availableQuantity; // or use the quantity from the previous bill if applicable
         _selectedItems.add(VendorBillItem(
           itemId: item.id,
           name: item.name,
-          quantity: item.availableQuantity,
+          quantity: initialQuantity, // Start with the purchased quantity
           purchaseRate: item.purchaseRate,
-          total: item.purchaseRate*item.availableQuantity,
-          miniUnit: item.miniUnit
+          total: item.purchaseRate * initialQuantity, // Total for the initial quantity
+          miniUnit: item.miniUnit,
+          item: item, // Store the item reference
         ));
-        _quantityControllers[item.id]!.text = item.availableQuantity.toString();
-
+        _quantityControllers[item.id]!.text = initialQuantity.toString(); // Set the controller to the initial quantity
       }
 
       _calculateTotalAmount();
@@ -242,13 +261,25 @@ class _AddEditVendorReturnBillDialogState extends State<AddEditVendorReturnBillD
     });
   }
 
-  void _updateItemQuantity(VendorBillItem item, int quantity) {
+  void _updateItemQuantity(VendorBillItem billItem, int quantity) {
     setState(() {
-      item.quantity = quantity;
-      item.total = item.purchaseRate * quantity;
+      // Check if the quantity is less than or equal to the available quantity of the associated Item
+      if (quantity > (billItem.item?.availableQuantity ?? 0)) {
+        // Show an error message or handle the error as needed
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Cannot return more than available quantity: ${billItem.item?.availableQuantity}'))
+        );
+        return; // Exit the method if the quantity is invalid
+      }
+
+      billItem.quantity = quantity;
+      billItem.total = billItem.purchaseRate * quantity;
+
+      // Recalculate the total amount
       _calculateTotalAmount();
     });
   }
+
 
   void _updateItemRateForBill(VendorBillItem item, double purchaseRate) {
     setState(() {
@@ -1203,8 +1234,18 @@ class _AddEditVendorReturnBillDialogState extends State<AddEditVendorReturnBillD
                                                 onChanged: (value) {
                                                   final quantity = int.tryParse(value) ?? 0;
                                                   setState(() {
-                                                    _selectedItems[i].quantity = quantity;
-                                                    _updateItemQuantity(_selectedItems[i], quantity); // Update only the quantity
+                                                    if (quantity <= _selectedItems[i].item!.availableQuantity) {
+                                                      _selectedItems[i].quantity = quantity;
+                                                      _updateItemQuantity(_selectedItems[i], quantity); // Update only the quantity
+                                                    } else {
+                                                      // If the quantity exceeds the availableQuantity, reset it to the availableQuantity
+                                                      _selectedItems[i].quantity = _selectedItems[i].item!.availableQuantity;
+                                                      _quantityControllers[_selectedItems[i].itemId]?.text = _selectedItems[i].quantity.toString(); // Update controller
+                                                      _updateItemQuantity(_selectedItems[i], _selectedItems[i].quantity); // Update quantity
+                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                        SnackBar(content: Text('Quantity cannot exceed available stock!')),
+                                                      );
+                                                    }
                                                   });
                                                 },
                                               ),
@@ -1222,9 +1263,14 @@ class _AddEditVendorReturnBillDialogState extends State<AddEditVendorReturnBillD
                                                       iconSize: 18, // Smaller icon size
                                                       onPressed: () {
                                                         setState(() {
-                                                          _selectedItems[i].quantity++;
-                                                          _quantityControllers[_selectedItems[i].itemId]?.text = _selectedItems[i].quantity.toString(); // Update controller
-                                                          _updateItemQuantity(_selectedItems[i], _selectedItems[i].quantity); // Update only quantity
+                                                          if (_selectedItems[i].quantity < _selectedItems[i].item!.availableQuantity) {
+                                                            _selectedItems[i].quantity++;
+                                                            _quantityControllers[_selectedItems[i].itemId]?.text = _selectedItems[i].quantity.toString(); // Update controller
+                                                            _updateItemQuantity(_selectedItems[i], _selectedItems[i].quantity); // Update only quantity
+                                                          } else {
+                                                            // Show a message if the user tries to increment past available stock
+                                                            _showAlertDialog('Cannot exceed purchased Quantity!');
+                                                          }
                                                         });
                                                       },
                                                     ),
@@ -1238,14 +1284,23 @@ class _AddEditVendorReturnBillDialogState extends State<AddEditVendorReturnBillD
                                                       iconSize: 18, // Smaller icon size
                                                       onPressed: () {
                                                         setState(() {
-                                                          if (_selectedItems[i].quantity > 0) {
-                                                            _selectedItems[i].quantity--;
-                                                            _quantityControllers[_selectedItems[i].itemId]?.text = _selectedItems[i].quantity.toString(); // Update controller
-                                                            _updateItemQuantity(_selectedItems[i], _selectedItems[i].quantity); // Update only quantity
+                                                          if (_selectedItems[i]
+                                                              .quantity > 0) {
+                                                            _selectedItems[i]
+                                                                .quantity--;
+                                                            _quantityControllers[_selectedItems[i]
+                                                                .itemId]?.text =
+                                                                _selectedItems[i]
+                                                                    .quantity
+                                                                    .toString(); // Update controller
+                                                            _updateItemQuantity(
+                                                                _selectedItems[i],
+                                                                _selectedItems[i]
+                                                                    .quantity); // Update only quantity
                                                           }
                                                         });
-                                                      },
-                                                    ),
+                                                      }
+                                                      ),
                                                   ),
                                                 ],
                                               ),
@@ -1371,149 +1426,154 @@ class _AddEditVendorReturnBillDialogState extends State<AddEditVendorReturnBillD
                             Row(
                               mainAxisAlignment : MainAxisAlignment.spaceBetween,
                               children: [
-                                SizedBox(
-                                  width: 300, // Set the width you want
-                                  child: TextField(
-                                    controller: _descriptionController,  // Your description controller
-                                    maxLines: 3,  // Limit to 3 lines
-                                    textAlign: TextAlign.start,  // Align text to the start
-                                    decoration: InputDecoration(
-                                      labelText: 'Description',  // Label for the TextField
-                                      border: OutlineInputBorder(),  // Add a border around the TextField
-                                    ),
-                                    style: TextStyle(fontSize: 16),  // Optional: Customize text style
-                                    keyboardType: TextInputType.multiline,  // Allow multiline input
-                                    textInputAction: TextInputAction.newline,  // Allow new line
+                                Expanded(
+                                  flex: 1,
+                                  child: SizedBox(
+                                    width: 300, // Set the width you want
+                                    child: TextField(
+                                      controller: _descriptionController,  // Your description controller
+                                      maxLines: 3,  // Limit to 3 lines
+                                      textAlign: TextAlign.start,  // Align text to the start
+                                      decoration: InputDecoration(
+                                        labelText: 'Description',  // Label for the TextField
+                                        border: OutlineInputBorder(),  // Add a border around the TextField
+                                      ),
+                                      style: TextStyle(fontSize: 16),  // Optional: Customize text style
+                                      keyboardType: TextInputType.multiline,  // Allow multiline input
+                                      textInputAction: TextInputAction.newline,  // Allow new line
 
-                                    // Add this to handle text changes
-                                    onChanged: (text) {
-                                      _descriptionController.text = text;
-                                    },
+                                      // Add this to handle text changes
+                                      onChanged: (text) {
+                                        _descriptionController.text = text;
+                                      },
+                                    ),
                                   ),
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                SizedBox(width: 5,),
+                                Expanded(
+                                  flex: 1,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
 
-                                  children: [
-                                    // Header
+                                    children: [
+                                      // Header
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
 
+                                            children: [
 
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-
-                                          children: [
-
-                                            Text(
-                                              "Sub Total: ",
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                color: Colors.black87,
-                                              ),
-                                            ),
-                                            Text(
-                                              '${NumberFormat.currency(symbol: ' ₨ ', decimalDigits: 2).format(double.tryParse(_subtotalAmountController.text) ?? 0.00)}',
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                color: Colors.black87,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 8),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              "Discount: ",
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                color: Colors.black87,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 100,
-                                              child: TextField(
-                                                decoration: InputDecoration(
-                                                  prefixText: ' ₨ ', // Prefix text for currency
-                                                  border: InputBorder.none, // Removed border
-                                                  labelText: null, // Removed label text
-                                                  contentPadding: EdgeInsets.symmetric(vertical: 10), // Adjust padding
-                                                  isDense: true, // Reduced height
-                                                ),
+                                              Text(
+                                                "Sub Total: ",
                                                 style: TextStyle(
-                                                  fontSize: 18, // Adjusted font size to match the text
+                                                  fontSize: 18,
                                                   color: Colors.black87,
                                                 ),
-                                                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                                                controller: _discountController,
-                                                inputFormatters: [
-                                                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')), // Allows only numbers and up to 2 decimal places
-                                                ],
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    _discount = double.tryParse(value) ?? 0.0;
-                                                    _calculateTotalAmount();
-
-                                                  });
-                                                },
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-
-                                    SizedBox(height: 8),
-
-
-                                    // Divider
-                                    Container(
-                                      width: 200,
-                                      height: 1,
-                                      color: Colors.grey[400],
-                                    ),
-                                    SizedBox(height: 8),
-
-                                    // Amount
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          "Total: ",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                            color: Colors.black87,
+                                              Text(
+                                                '${NumberFormat.currency(symbol: ' ₨ ', decimalDigits: 2).format(double.tryParse(_subtotalAmountController.text) ?? 0.00)}',
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ),
-                                        Text(
-                                          '${NumberFormat.currency(symbol: '₨ ', decimalDigits: 2).format(double.tryParse(_totalAmountController.text) ?? 0)}',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 4),
+                                          SizedBox(height: 8),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                "Discount: ",
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 100,
+                                                child: TextField(
+                                                  decoration: InputDecoration(
+                                                    prefixText: ' ₨ ', // Prefix text for currency
+                                                    border: InputBorder.none, // Removed border
+                                                    labelText: null, // Removed label text
+                                                    contentPadding: EdgeInsets.symmetric(vertical: 10), // Adjust padding
+                                                    isDense: true, // Reduced height
+                                                  ),
+                                                  style: TextStyle(
+                                                    fontSize: 17, // Adjusted font size to match the text
+                                                    color: Colors.black87,
+                                                  ),
+                                                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                                  controller: _discountController,
+                                                  inputFormatters: [
+                                                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')), // Allows only numbers and up to 2 decimal places
+                                                  ],
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      _discount = double.tryParse(value) ?? 0.0;
+                                                      _calculateTotalAmount();
 
-                                    // Amount in Words
-                                    Text(
-                                      '${numberToWords(double.tryParse(_totalAmountController.text)?.toInt() ?? 0)} Rupees Only',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[700],
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                    ),
 
-                                    SizedBox(height: 25)
+                                      SizedBox(height: 8),
 
 
-                                  ],
+                                      // Divider
+                                      Container(
+                                        width: 200,
+                                        height: 1,
+                                        color: Colors.grey[400],
+                                      ),
+                                      SizedBox(height: 8),
+
+                                      // Amount
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            "Total: ",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${NumberFormat.currency(symbol: '₨ ', decimalDigits: 2).format(double.tryParse(_totalAmountController.text) ?? 0)}',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 4),
+
+                                      // Amount in Words
+                                      Text(
+                                        '${numberToWords(double.tryParse(_totalAmountController.text)?.toInt() ?? 0)} ₨ Only',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+
+                                      SizedBox(height: 25)
+
+
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:namer_app/models/item.dart';
+import 'package:namer_app/screens/Items/edit_or_add_item.dart';
 import 'package:namer_app/services/items.dart';
 import 'package:namer_app/theme/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,7 +13,8 @@ class ItemDataSource extends DataTableSource {
   final BuildContext context;
   final void Function(Item, int) onAddStock;
   final void Function(Item) onSelectItem;
-  final void Function(List<Item>) onSelectionChanged; // Callback for selection changes
+  final void Function(List<Item>)
+      onSelectionChanged; // Callback for selection changes
   List<Item> filteredItems;
   Set<Item> selectedItems; // Store selected items
 
@@ -31,11 +33,13 @@ class ItemDataSource extends DataTableSource {
     final lowerQuery = query.toLowerCase();
     filteredItems
       ..clear()
-      ..addAll(items.where((item) => item.name.toLowerCase().contains(lowerQuery)));
+      ..addAll(
+          items.where((item) => item.name.toLowerCase().contains(lowerQuery)));
     notifyListeners();
   }
 
-  void sortItems<T>(Comparable<T> Function(Item item) getField, bool ascending) {
+  void sortItems<T>(
+      Comparable<T> Function(Item item) getField, bool ascending) {
     filteredItems.sort((a, b) {
       if (!ascending) {
         final Item c = a;
@@ -80,7 +84,9 @@ class ItemDataSource extends DataTableSource {
         DataCell(SizedBox(
             width: 50,
             height: 50,
-            child: Image.network(item.picture != null ? '${dotenv.env['BACKEND_URL']!}${item.picture}' : ''))),
+            child: Image.network(item.picture != null
+                ? '${dotenv.env['BACKEND_URL']!}${item.picture}'
+                : ''))),
       ],
     );
   }
@@ -115,7 +121,6 @@ class _ItemSelectionDialogState extends State<ItemSelectionDialog> {
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   List<Item> _selectedItems = [];
 
-
   @override
   void initState() {
     super.initState();
@@ -146,6 +151,27 @@ class _ItemSelectionDialogState extends State<ItemSelectionDialog> {
     Navigator.pop(context);
   }
 
+  final ItemService _itemService = ItemService();
+  void refreshItems() async {
+    final items = await _itemService.getItems();
+    setState(() {
+      _dataSource = ItemDataSource(
+        items: items,
+        onEdit: (item) {},
+        onDelete: (id) {},
+        onAddStock: (item, quantity) {},
+        context: context,
+        onSelectItem: (item) {},
+        onSelectionChanged: (selectedItems) {
+          setState(() {
+            _selectedItems = selectedItems;
+          });
+        },
+      );
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -158,18 +184,51 @@ class _ItemSelectionDialogState extends State<ItemSelectionDialog> {
         padding: EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(
-              onChanged: _onSearch,
-              decoration: InputDecoration(
-                labelText: 'Search',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: TextField(
+                    onChanged: _onSearch,
+                    decoration: InputDecoration(
+                      labelText: 'Search',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                SizedBox(
+                  width: 5,
+                ),
+                Expanded(
+                  flex: 1,
+                  child: SizedBox(
+                    height: 40,
+                    width: 250,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AddEditItemDialog(
+                              onItemSaved: () {
+                               refreshItems();// Pass the new item here
+                              },
+                            );
+                          },
+                        );
+                      },
+                      child: Text('Add Item'),
+                    ),
+                  ),
+                )
+              ],
             ),
             Expanded(
-              child: Center( // Center the table
+              child: Center(
+                // Center the table
                 child: SingleChildScrollView(
                   child: PaginatedDataTable(
                     columns: [

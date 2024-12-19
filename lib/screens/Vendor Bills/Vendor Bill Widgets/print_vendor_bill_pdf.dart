@@ -14,6 +14,8 @@ import '../../../models/vendor_bills.dart';
 class VendorBillPdfGenerator {
   static Future<void> generatePdfAndView(VendorBill bill, Vendor vendor, String billType, BusinessDetails? businessDetails) async {
     final pdf = pw.Document();
+    DateTime date = DateTime.parse(bill.date);
+    String formattedDate = DateFormat('yyyy-MM-dd').format(date);
     final isReturnBill = billType == 'Return Bill';
     final billColor = isReturnBill ? PdfColors.redAccent : PdfColors.blueAccent;
     final netImage = await networkImage('${dotenv.env['BACKEND_URL']!}${businessDetails!.companyLogo}');
@@ -200,7 +202,7 @@ class VendorBillPdfGenerator {
                                 pw.Text('Purchase Date:',
                                     style: pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
                                 pw.SizedBox(height: 3),
-                                pw.Text('${bill.date}',
+                                pw.Text(formattedDate,
                                     style: pw.TextStyle(
                                         fontSize: 12, fontWeight: pw.FontWeight.bold)),
                               ],

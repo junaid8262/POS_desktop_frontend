@@ -36,13 +36,19 @@ class VendorBillsDataSource extends DataTableSource {
     required this.printBill,
     required this.user,
     required this.businessDetails,
-  }) : filteredVendorBills = List.from(vendorBills);
+  }) : filteredVendorBills = List.from(vendorBills)
+    ..sort((a, b) => DateTime.parse(b.date).compareTo(DateTime.parse(a.date)));
+
+
   final RequestService _requestService = RequestService();
 
   // Adding filter for Bill Type
   void filterBillsByType(String billType) {
     if (billType == 'All') {
-      filteredVendorBills = List.from(vendorBills); // Show all bills if 'All' is selected
+      filteredVendorBills = List.from(vendorBills)
+        ..sort((a, b) => DateTime.parse(b.date).compareTo(DateTime.parse(a.date)));
+
+      // Show all bills if 'All' is selected
     } else {
       filteredVendorBills = vendorBills.where((bill) => bill.billType == billType).toList(); // Filter by type
     }
@@ -86,7 +92,7 @@ class VendorBillsDataSource extends DataTableSource {
     final bill = filteredVendorBills[index];
     final vendor = vendors?[bill.vendorId];
     final formattedDate = DateFormat('dd-MM-yyyy').format(DateTime.parse(bill.date));
-
+    print(bill.date);
     return DataRow.byIndex(
       index: index,
       cells: [
