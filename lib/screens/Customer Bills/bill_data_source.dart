@@ -18,7 +18,7 @@ class BillsDataSource extends DataTableSource {
   final void Function(Bill) onEdit;
   final void Function(String) onDelete;
   final void Function(Bill,Customer) showBillItems;
-  final void Function(Bill, Customer,String, BusinessDetails) printBill;
+  final void Function(Bill, Customer,String,BuildContext, BusinessDetails) printBill;
   final BuildContext context;
   List<Bill> filteredBills;
   final User? user;
@@ -143,7 +143,7 @@ class BillsDataSource extends DataTableSource {
             onEdit: (bill) => onEdit(bill),
             onDelete: (billId) => onDelete(billId),
             showBillItems: (bill, customer) => showBillItems(bill, customer),
-            printBill: (bill, customer, billType, BusinessDetails) => printBill(bill, customer, billType,BusinessDetails!),
+            printBill: (bill, customer, billType, BusinessDetails) => printBill(bill, customer, billType,context,BusinessDetails!),
             bill: bill,
             customer: customer!,
             businessDetails: businessDetails,

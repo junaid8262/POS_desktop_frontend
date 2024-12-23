@@ -201,4 +201,44 @@ class BillService {
   }
 
 
+  Future<List<Map<String, dynamic>>> fetchItemPurchaseDetails(String itemId) async {
+    try {
+      final billsResponse = await http.get(Uri.parse('$apiUrl/bills'));
+      if (billsResponse.statusCode != 200) {
+        throw Exception('Failed to fetch bills');
+      }
+
+      final bills = jsonDecode(billsResponse.body) as List;
+      final List<Map<String, dynamic>> results = [];
+
+      for (var bill in bills) {
+        final items = bill['items'] as List;
+        for (var item in items) {
+          if (item['itemId'] == itemId) {
+            final customerResponse = await http.get(Uri.parse('$apiUrl/customers/${bill['customer']}'));
+            if (customerResponse.statusCode != 200) {
+              throw Exception('Failed to fetch customer details');
+            }
+
+            final customer = jsonDecode(customerResponse.body);
+
+            results.add({
+              'customerName': customer['name'],
+              'quantity': item['quantity'],
+              'saleRate': item['saleRate'],
+              'total': item['total'],
+              'date': bill['date'],
+            });
+          }
+        }
+      }
+      return results;
+    } catch (e) {
+      print('Error: $e');
+      return [];
+    }
+  }
 }
+
+
+

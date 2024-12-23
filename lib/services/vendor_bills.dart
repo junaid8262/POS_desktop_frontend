@@ -186,7 +186,7 @@ class VendorBillService {
   }
 
   Future<List<VendorBillItem>> getItemRatesByVendorId(String itemId) async {
-    final response = await http.get(Uri.parse('$apiUrl/items/$itemId/vendor-rates'));
+    final response = await http.get(Uri.parse('$apiUrl/items/$itemId/rates'));
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
       print(data);  // Debugging to check the fetched data
@@ -206,6 +206,49 @@ class VendorBillService {
       throw Exception('Failed to add balance');
     }
   }
+
+  Future<List<Map<String, dynamic>>> fetchVendorBillDetails(String itemId) async {
+    try {
+      // Fetch all vendor bills
+      final response = await http.get(Uri.parse('$apiUrl/vendor-bills'));
+      if (response.statusCode != 200) {
+        throw Exception('Failed to fetch vendor bills');
+      }
+
+      final vendorBills = jsonDecode(response.body) as List;
+      final List<Map<String, dynamic>> results = [];
+
+      for (var bill in vendorBills) {
+        final items = bill['items'] as List;
+        for (var item in items) {
+          if (item['itemId'] == itemId) {
+            // Fetch vendor details using vendor ID
+            final vendorResponse =
+            await http.get(Uri.parse('$apiUrl/vendors/${bill['vendor']}'));
+            if (vendorResponse.statusCode != 200) {
+              throw Exception('Failed to fetch vendor details');
+            }
+
+            final vendor = jsonDecode(vendorResponse.body);
+
+            // Collect relevant details
+            results.add({
+              'vendorName': vendor['name'],
+              'quantity': item['quantity'],
+              'purchaseRate': item['purchaseRate'],
+              'date': bill['date'],
+            });
+          }
+        }
+      }
+
+      return results;
+    } catch (e) {
+      print('Error: $e');
+      return [];
+    }
+  }
+
 
 
 }

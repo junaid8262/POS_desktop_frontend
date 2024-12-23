@@ -7,20 +7,35 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:provider/provider.dart';
+import '../../../components/bussiness_info_provider.dart';
 import '../../../models/bills.dart';
 import '../../../models/businessInfo.dart';
 import '../../../models/customer.dart';
+import '../../../services/businessInfo.dart';
 
 class BillPdfGenerator {
+  final BusinessDetailsService _businessDetailsService = BusinessDetailsService();
 
-  static Future<void> generatePdfAndView(Bill bill, Customer customer, String billType , BusinessDetails? businessDetails) async {
+  void getBusinessDetails()async{
+    List<BusinessDetails> businessDetails = await _businessDetailsService.getBusinessDetails();
+  }
+
+  static Future<void> generatePdfAndView(Bill bill, Customer customer, String billType ,BuildContext context, BusinessDetails businessDetails) async {
     final pdf = pw.Document();
+    BillPdfGenerator().getBusinessDetails();
+    final businessProvider = Provider.of<BusinessDetailsProvider>(context, listen: false);
+
+
     // Parse bill.date to DateTime
     DateTime date = DateTime.parse(bill.date);
     String formattedDate = DateFormat('yyyy-MM-dd').format(date);
     final isReturnBill = billType == 'Return Bill';
     final billColor = isReturnBill ? PdfColors.redAccent : PdfColors.blueAccent;
-    final netImage = await networkImage('${dotenv.env['BACKEND_URL']!}${businessDetails!.companyLogo}');
+
+    final netImage = await networkImage(
+        '${dotenv.env['BACKEND_URL']!}${businessProvider.businessDetails!.companyLogo}?timestamp=${DateTime.now().millisecondsSinceEpoch}'
+    );
 
     const int itemsPerPage = 10; // Limit of items per page
     final totalPages = (bill.items.length / itemsPerPage).ceil(); // Calculate total number of pages

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
+import '../components/bussiness_info_provider.dart';
 import '../models/businessInfo.dart'; // Update with the actual model file
 import '../services/businessInfo.dart'; // Update with the actual service file
 
@@ -71,51 +73,45 @@ class _BusinessInfoScreenState extends State<BusinessInfoScreen> {
     try {
       setState(() {
         _isEditing = false;
-
       });
-      // Create a new BusinessDetails object from the input fields
+
+      // Only upload an image if a new one is selected
       if (_image != null) {
-        // If the user has selected an image, upload it
         logoURL = await _businessDetailsService.uploadImage(_image!);
-      } else {
-        // If _image is null, upload a placeholder image from assets
-        logoURL = await _businessDetailsService.uploadImage(File('assets/placeholder.jpg'));
       }
+
+      // Create or update the business details
+      BusinessDetails updatedDetails = BusinessDetails(
+        id: _businessDetails?.id ?? '', // Empty if creating a new record
+        companyLogo: logoURL, // Use the existing logoURL if no new image is uploaded
+        companyAddress: _addressController.text,
+        companyPhoneNo: _phoneController.text,
+        companyName: _nameController.text,
+      );
 
       if (_businessDetails == null) {
-        final newDetails = BusinessDetails(
-          id: '', // Empty if creating a new record
-          companyLogo: logoURL,
-          companyAddress: _addressController.text,
-          companyPhoneNo: _phoneController.text,
-          companyName: _nameController.text,
-        );
-        // If no business detail exists, create a new one
-        await _businessDetailsService.createBusinessDetail(newDetails);
-
-        setState(() {
-          _isEditing = true;
-          _businessDetails = newDetails; // Set the updated details
-        });
+        // Create new business details
+        await _businessDetailsService.createBusinessDetail(updatedDetails);
       } else {
-        final updateDetails = BusinessDetails(
-          id: _businessDetails!.id, // Empty if creating a new record
-          companyLogo: logoURL,
-          companyAddress: _addressController.text,
-          companyPhoneNo: _phoneController.text,
-          companyName: _nameController.text,
-        );
-        // Update existing business detail
-        await _businessDetailsService.updateBusinessDetail(_businessDetails!.id!, updateDetails);
-        setState(() {
-          _isEditing = true;
-          _businessDetails = updateDetails; // Set the updated details
-        });
+        // Update existing business details
+        await _businessDetailsService.updateBusinessDetail(_businessDetails!.id!, updatedDetails);
       }
 
+      // Update the provider with the new business details
+      final businessProvider = Provider.of<BusinessDetailsProvider>(context, listen: false);
+      businessProvider.setBusinessDetails(updatedDetails);
 
+      // Optionally fetch the updated data from the backend and refresh the provider
+      final List<BusinessDetails> fetchedDetails = await _businessDetailsService.getBusinessDetails();
+      if (fetchedDetails.isNotEmpty) {
+        businessProvider.setBusinessDetails(fetchedDetails[0]);
+      }
+
+      setState(() {
+        _isEditing = true;
+        _businessDetails = updatedDetails; // Update the local state as well
+      });
     } catch (e) {
-      // Handle errors during save
       print("Error saving business details: $e");
     }
   }

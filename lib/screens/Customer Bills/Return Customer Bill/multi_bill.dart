@@ -467,7 +467,7 @@ class _MultiAddEditBillDialogState extends State<MultiAddEditBillDialog> {
       final customer = await _billService.getCustomerById(_selectedCustomerId!);
       // Pass the correct parameters to generatePdfAndView
 
-      BillPdfGenerator.generatePdfAndView(newBill, customer, newBill.billType,bussinessDetails);
+      BillPdfGenerator.generatePdfAndView(newBill, customer, newBill.billType,context,bussinessDetails!);
     }
 
     Navigator.pop(context);

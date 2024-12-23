@@ -92,21 +92,22 @@ class BillItem {
   }
 
   // Factory method to create a BillItem from JSON
+  // Factory method to create a BillItem from JSON
   factory BillItem.fromJson(Map<String, dynamic> json) {
     return BillItem(
       itemId: json['itemId'] ?? json['item'] ?? '',
       name: json['name'] ?? '',
-      quantity: json['quantity'] ?? 1,  // Default quantity to 1 if null
+      quantity: json['quantity'] ?? 0, // Default to 0 if null or missing
       saleRate: (json['saleRate'] ?? 0).toDouble(),
       total: (json['total'] ?? 0).toDouble(),
       purchaseRate: (json['purchaseRate'] ?? 0).toDouble(),
       itemDiscount: (json['itemDiscount'] ?? 0).toDouble(),
-      customerName: json['customerName'],  // Allow null
-      date: json['date'],  // Allow null
-      miniUnit: json['miniUnit'],
-
+      customerName: json['customerName'], // Allow null
+      date: json['date'], // Allow null
+      miniUnit: json['miniUnit'], // Allow null
     );
   }
+
 
   // Method to convert the BillItem object to JSON
   Map<String, dynamic> toJson() {

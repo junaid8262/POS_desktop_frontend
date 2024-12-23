@@ -437,7 +437,7 @@ class _AddEditReturnBillDialogState extends State<AddEditReturnBillDialog> {
       // Fetch customer details before printing the bill
       final customer = await _billService.getCustomerById(_selectedCustomerId!);
       // Generate and view the PDF
-      BillPdfGenerator.generatePdfAndView(newBill, customer, newBill.billType,bussinessDetails);
+      BillPdfGenerator.generatePdfAndView(newBill, customer, newBill.billType,context,bussinessDetails!);
     }
 
     Navigator.pop(context);
