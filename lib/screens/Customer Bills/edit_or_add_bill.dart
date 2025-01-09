@@ -82,7 +82,7 @@ class _AddEditBillDialogState extends State<AddEditBillDialog> {
   String? _selectedCustomerId;
   Customer? _selectedCustomer;
   List<BillItem> _selectedItems = [];
-  String _selectedStatus = 'Completed';
+  String _selectedStatus = '';
   double _totalAmount = 0;
   double _discount = 0;
   double _subtotal = 0;
@@ -313,6 +313,9 @@ class _AddEditBillDialogState extends State<AddEditBillDialog> {
   void initState() {
     super.initState();
 
+
+
+
     if (widget.bill != null) {
       print("customer id init state: ${widget.bill?.customerId}");
 
@@ -364,6 +367,8 @@ class _AddEditBillDialogState extends State<AddEditBillDialog> {
     }
 
     _fetchRole();
+    _selectedStatus = _role == "admin" ? 'Completed' : 'Non Completed';
+
     _fetchItems();
     _fetchCustomers();
   }
@@ -560,7 +565,7 @@ class _AddEditBillDialogState extends State<AddEditBillDialog> {
     final paymentPromisedDate = _paymentPromisedDateController.text;
     double creditAmount =
         double.parse(_creditController.text); // Parse credit amount
-
+print("Date:$date");
     // Check if the status is "Non Completed", set item sale rates, total bill, and discount to zero
     if (_selectedStatus == 'Non Completed') {
       for (var item in _selectedItems) {
@@ -623,6 +628,7 @@ class _AddEditBillDialogState extends State<AddEditBillDialog> {
     setState(() {
       _isLoading = false;
     });
+
 
     widget.onBillSaved();
 
@@ -882,11 +888,14 @@ class _AddEditBillDialogState extends State<AddEditBillDialog> {
     final businessProvider =
         Provider.of<BusinessDetailsProvider>(context, listen: true);
     double dialogWidth = MediaQuery.of(context).size.width; // Default width
+    double dialogHeight = MediaQuery.of(context).size.height; // Default width
 
     // Adjust dialog size based on depth
     if (widget.depth > 0) {
       dialogWidth = MediaQuery.of(context).size.width *
           (1 - widget.depth * 0.1); // Decrease width as depth increases
+      dialogHeight = MediaQuery.of(context).size.height *
+          (1 - widget.depth * 0.05);
     }
 
     return Dialog(
@@ -896,8 +905,10 @@ class _AddEditBillDialogState extends State<AddEditBillDialog> {
 
       backgroundColor: Colors.white, // Set the background color to white
       child: Container(
+
         padding: EdgeInsets.all(16),
         width: dialogWidth,
+        height: dialogHeight,
         child: _isLoading
             ? Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
@@ -1022,7 +1033,8 @@ class _AddEditBillDialogState extends State<AddEditBillDialog> {
                                               ),
                                             ],
                                           ),
-                                          _role == "admin"
+
+                                             _role == "admin"
                                               ? SizedBox(
                                                   width: 200,
                                                   child:

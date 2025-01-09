@@ -54,9 +54,11 @@ class _CustomerPageState extends State<CustomerPage> {
   Future<void> _confirmDeleteBill(String id) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // Prevents closing the dialog by tapping outside
+      barrierDismissible: false,
+      // Prevents closing the dialog by tapping outside
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: Text('Confirm Delete'),
           content: SingleChildScrollView(
             child: ListBody(

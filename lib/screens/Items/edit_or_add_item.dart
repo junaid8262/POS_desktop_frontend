@@ -241,7 +241,7 @@ class _AddEditItemDialogState extends State<AddEditItemDialog> {
               _image == null
                   ? TextButton.icon(
                 icon: Icon(Icons.image),
-                label: Text('Pick Image*'),
+                label: Text('Pick Image'),
                 onPressed: _pickImage,
               )
                   : TextButton.icon(

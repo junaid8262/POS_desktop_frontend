@@ -173,7 +173,7 @@ class _RequestScreenState extends State<RequestScreen> {
           borderRadius: BorderRadius.circular(20),
         ),
         padding: const EdgeInsets.all(20.0),
-        height: 300, // Set a fixed height for the card
+        height: 350, // Set a fixed height for the card
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -183,7 +183,7 @@ class _RequestScreenState extends State<RequestScreen> {
                 Text(
                   'REQUEST FOR ${request.documentType.toUpperCase()}',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 17,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
@@ -203,7 +203,7 @@ class _RequestScreenState extends State<RequestScreen> {
 
               ],
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 8),
 
             // User name
             Row(
@@ -220,7 +220,7 @@ class _RequestScreenState extends State<RequestScreen> {
               ],
             ),
 
-            SizedBox(height: 10),
+            SizedBox(height: 8),
 
             // Bill details
             Row(
@@ -237,7 +237,7 @@ class _RequestScreenState extends State<RequestScreen> {
               ],
             ),
 
-            SizedBox(height: 10),
+            SizedBox(height: 8),
 
             // Bill ID
             Row(
@@ -254,7 +254,7 @@ class _RequestScreenState extends State<RequestScreen> {
               ],
             ),
 
-            SizedBox(height: 10),
+            SizedBox(height: 8),
 
             // Request Date
             Text(
@@ -265,7 +265,7 @@ class _RequestScreenState extends State<RequestScreen> {
               ),
             ),
 
-            SizedBox(height: 10),
+            SizedBox(height: 8),
 
             // Status with rounded background
             Container(
@@ -291,7 +291,7 @@ class _RequestScreenState extends State<RequestScreen> {
 
             // Approval and Denial buttons
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildActionButton(
                   icon: Icons.check_circle,

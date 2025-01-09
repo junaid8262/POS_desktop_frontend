@@ -105,8 +105,8 @@ class ItemDataSource extends DataTableSource {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: Colors.white,
           child: Container(
-
             padding: EdgeInsets.all(10),
             child: Column(
               mainAxisSize: MainAxisSize.min,

@@ -212,23 +212,26 @@ class BillService {
       final List<Map<String, dynamic>> results = [];
 
       for (var bill in bills) {
-        final items = bill['items'] as List;
-        for (var item in items) {
-          if (item['itemId'] == itemId) {
-            final customerResponse = await http.get(Uri.parse('$apiUrl/customers/${bill['customer']}'));
-            if (customerResponse.statusCode != 200) {
-              throw Exception('Failed to fetch customer details');
+        // Check if the bill status is "Completed"
+        if (bill['status'] == 'Completed') {
+          final items = bill['items'] as List;
+          for (var item in items) {
+            if (item['itemId'] == itemId) {
+              final customerResponse = await http.get(Uri.parse('$apiUrl/customers/${bill['customer']}'));
+              if (customerResponse.statusCode != 200) {
+                throw Exception('Failed to fetch customer details');
+              }
+
+              final customer = jsonDecode(customerResponse.body);
+
+              results.add({
+                'customerName': customer['name'],
+                'quantity': item['quantity'],
+                'saleRate': item['saleRate'],
+                'total': item['total'],
+                'date': bill['date'],
+              });
             }
-
-            final customer = jsonDecode(customerResponse.body);
-
-            results.add({
-              'customerName': customer['name'],
-              'quantity': item['quantity'],
-              'saleRate': item['saleRate'],
-              'total': item['total'],
-              'date': bill['date'],
-            });
           }
         }
       }

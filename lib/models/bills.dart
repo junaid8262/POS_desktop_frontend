@@ -12,8 +12,10 @@ class Bill {
   double amountGiven; // New attribute
   String billType;
   String description; // New attribute
+  String? createdAt;
 
   Bill({
+    this.createdAt,
     required this.id,
     required this.customerId,
     required this.items,

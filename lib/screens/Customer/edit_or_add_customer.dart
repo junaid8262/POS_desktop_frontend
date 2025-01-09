@@ -120,7 +120,6 @@ class _AddEditCustomerDialogState extends State<AddEditCustomerDialog> {
               ),
               SizedBox(height: 16),
               CustomTextField(
-                readOnly: true,
                 controller: _balanceController,
                 label: 'Balance',
                 keyboardType: TextInputType.number,

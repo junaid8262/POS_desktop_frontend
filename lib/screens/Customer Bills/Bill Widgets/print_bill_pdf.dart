@@ -28,7 +28,7 @@ class BillPdfGenerator {
 
 
     // Parse bill.date to DateTime
-    DateTime date = DateTime.parse(bill.date);
+    DateTime date = DateFormat('dd-MM-yyyy').parse(bill.date);
     String formattedDate = DateFormat('yyyy-MM-dd').format(date);
     final isReturnBill = billType == 'Return Bill';
     final billColor = isReturnBill ? PdfColors.redAccent : PdfColors.blueAccent;

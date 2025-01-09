@@ -645,10 +645,14 @@ class _LedgerBillDataSource extends DataTableSource {
       this.onView,
       this.context,
       this.customer,
-      this.businessDetails
+      this.businessDetails,
       ) : _bills = List.from(bills)
-    ..sort((a, b) => DateTime.parse(b.date ?? '')
-        .compareTo(DateTime.parse(a.date ?? '')));
+    ..sort((a, b) {
+      final DateTime dateTimeA = DateTime.parse(a.date ?? '');
+      final DateTime dateTimeB = DateTime.parse(b.date ?? '');
+      return dateTimeB.compareTo(dateTimeA);
+    });
+
   @override
   DataRow getRow(int index) {
     final Bill bill = _bills[index];

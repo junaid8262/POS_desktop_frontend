@@ -116,7 +116,7 @@ class _AddEditVendorDialogState extends State<AddEditVendorDialog> {
               ),
               SizedBox(height: 16),
 
-              CustomTextField(readOnly: true , controller: _balanceController, label: 'Balance', keyboardType: TextInputType.number),
+              CustomTextField(controller: _balanceController, label: 'Balance', keyboardType: TextInputType.number),
               SizedBox(height: 16),
               if(_businessNameController.text.trim().isNotEmpty && _nameController.text.trim().isNotEmpty &&
                   _phoneNumberController.text.trim().isNotEmpty ) ...[
